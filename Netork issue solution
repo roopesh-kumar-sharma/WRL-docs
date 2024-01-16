@@ -1,0 +1,76 @@
+Issue: Ethernet enterface not found/shown and no IP found/shown.( In short no internet issues)
+
+----------------------Solution-------------------------
+
+STEP 1:
+At first checked the version of ubuntu server with : cat /etc/os-relese command
+
+STEP 2:
+check network configuration file 
+sudo nano/etc/netplan/01-netcfg.yml
+
+configure the file for Ethernet with DHCP:
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0:  
+      dhcp4: 
+
+Configuration for Ethernet with static IP
+network:          # No indentation
+  version: 2      # 2 spaces
+  renderer: networkd   # 2 spaces
+  ethernets:      # 2 spaces
+    enp1s0:       # 4 spaces (2 additional spaces for the nested level)
+      addresses:         # 6 spaces (2 more spaces for the nested level)
+        - 192.168.1.100/24   # 8 spaces (2 more spaces for the nested level)
+      gateway4: 192.168.1.1   # 6 spaces (back to the previous level)
+      nameservers:            # 6 spaces (back to the previous level)
+        addresses: [8.8.8.8, 8.8.4.4]   # 8 spaces (2 more spaces for the nested level)
+
+      
+Save the file and apply the changes with
+sudo netplan apply 
+      
+      
+Note: make sure to check the network interface name:
+for this use ip a command and verify the name. In my case my case it is enp1s0
+
+STEP 3:
+check for the networking services used by your system:
+
+sudo systemctl list-units --type=service |grep network
+
+check for network-manager or systemd-neworkd or NetworkManager service
+
+if you find any of the name listed restart it:
+
+sudo systemctl restart systemd-networkd
+
+STEP :4
+
+Enable the systemd-networkd  service
+systemctl enable systemd-networkd
+
+STEP 5:
+
+Retart the systemd-networkd service
+systemctl restart systemd-networkd 
+
+STEP: 6
+
+Check if the servie is running
+sudo systemctl status systemd-networkd
+
+STEP : 7
+
+verify the interface 
+ifconfig 
+ping google.com
+----------------------------------------------------------------------------------------------
+
+This is how you solve interface not showing after each boot of the system and the interface does't take any ip.
+
+
